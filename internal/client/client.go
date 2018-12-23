@@ -41,7 +41,7 @@ func newHandler() *Handler {
 	rand.Seed(time.Now().UnixNano())
 
 	msg := make(chan receivedMessage)
-	stop := make(chan struct{}, 1)
+	stop := make(chan struct{})
 
 	return &Handler{
 		msgChan: msg,

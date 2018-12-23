@@ -69,7 +69,7 @@ func TestClient(t *testing.T) {
 		// create request handler with local writer
 		w := &bytes.Buffer{}
 		msg := make(chan receivedMessage)
-		stop := make(chan struct{}, 1)
+		stop := make(chan struct{})
 		h := &Handler{
 			msgChan: msg,
 			out:     w,

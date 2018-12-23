@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/gorilla/websocket"
 
@@ -36,8 +38,11 @@ type Handler struct {
 
 // newHandler creates new ws handler, that prints messages into console
 func newHandler() *Handler {
+	rand.Seed(time.Now().UnixNano())
+
 	msg := make(chan receivedMessage)
 	stop := make(chan struct{}, 1)
+
 	return &Handler{
 		msgChan: msg,
 		out:     os.Stdout,

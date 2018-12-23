@@ -70,7 +70,9 @@ func StartGeneration(confPath, key string, n int) error {
 				go rh.saveToList(kh.key, strHash)
 				// send via ws
 				err = ws.sendMessage(kh.key, strHash)
-				log.Println("ws error: ", err)
+				if err != nil {
+					log.Println("ws error: ", err)
+				}
 			}
 
 		case <-interrupt:

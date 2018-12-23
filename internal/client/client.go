@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -28,12 +29,21 @@ type receivedMessage struct {
 // Handler handles ws connection and input messages in JSON format
 type Handler struct {
 	msgChan chan receivedMessage
+	out     io.Writer
+	stop    chan struct{}
+	getID   func(int) string
 }
 
-// newHandler creates new ws handler
+// newHandler creates new ws handler, that prints messages into console
 func newHandler() *Handler {
 	msg := make(chan receivedMessage)
-	return &Handler{msg}
+	stop := make(chan struct{}, 1)
+	return &Handler{
+		msgChan: msg,
+		out:     os.Stdout,
+		stop:    stop,
+		getID:   RandomID,
+	}
 }
 
 // ReadMessage handles input ws message
@@ -47,17 +57,17 @@ func (h *Handler) ReadMessage(w http.ResponseWriter, r *http.Request) {
 	defer c.Close()
 
 	// generate random ID for each connected generator
-	id := RandomID(8)
+	id := h.getID(8)
 
 	// notify that new generator connected
-	fmt.Printf("%s%s connected%s\n", colorGreen, id, colorDefault)
+	fmt.Fprintf(h.out, "%s%s connected%s\n", colorGreen, id, colorDefault)
 
 	for {
 		msg := types.Message{}
 		err = c.ReadJSON(&msg)
 		if err != nil {
 			// notify that generator disconnected
-			fmt.Printf("%s%s disconnected%s\n", colorRed, id, colorDefault)
+			fmt.Fprintf(h.out, "%s%s disconnected%s\n", colorRed, id, colorDefault)
 			return
 		}
 
@@ -75,16 +85,25 @@ func (h *Handler) PrintMessages() {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 
+MESSAGE:
 	for {
 		select {
 		case msg := <-h.msgChan:
-			fmt.Printf("%s%s >%s %s : %s\n", colorBlue, msg.id, colorDefault, msg.Number, msg.Hash)
+			fmt.Fprintf(h.out, "%s%s >%s %s : %s\n", colorBlue, msg.id, colorDefault, msg.Number, msg.Hash)
 
 		case <-interrupt:
-			fmt.Println("\nexiting client")
+			fmt.Fprintln(h.out, "\nexiting client")
 			os.Exit(0)
+
+		case <-h.stop:
+			break MESSAGE
 		}
 	}
+}
+
+// StopPrinting terminates message prinring
+func (h *Handler) StopPrinting() {
+	h.stop <- struct{}{}
 }
 
 // Start runs client on default localhost:8080

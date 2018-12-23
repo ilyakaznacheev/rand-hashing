@@ -8,6 +8,12 @@ import (
 	"github.com/ilyakaznacheev/rand-hashing/internal/hashgen"
 )
 
+// main starts hashing for input number
+// requires 3 arguments:
+// 
+// path to config file
+// base hashing number
+// number of hashing iterations
 func main() {
 	if len(os.Args) < 4 {
 		fmt.Println("Usage: ./gethashes key iterations")

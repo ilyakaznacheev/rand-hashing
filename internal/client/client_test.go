@@ -114,3 +114,10 @@ func TestClient(t *testing.T) {
 		}
 	}
 }
+
+func TestNewHandler(t *testing.T) {
+	h := newHandler()
+	if h == nil {
+		t.Error("request handler creation failed")
+	}
+}

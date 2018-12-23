@@ -67,11 +67,12 @@ func StartGeneration(confPath, key string, n int) error {
 			} else {
 				strHash := fmt.Sprintf("%x", kh.hash)
 				// save into Redis list
-				go rh.saveToRedis(kh.key, strHash)
+				go rh.saveToList(kh.key, strHash)
 				// send via ws
 				err = ws.sendMessage(kh.key, strHash)
 				log.Println("ws error: ", err)
 			}
+
 		case <-interrupt:
 			log.Println("keyboard interrupt")
 			os.Exit(0)
@@ -79,10 +80,12 @@ func StartGeneration(confPath, key string, n int) error {
 	}
 }
 
+// wsConnection handles WebSocket connection
 type wsConnection struct {
 	*websocket.Conn
 }
 
+// newWSConnection creates new WebSocket connection
 func newWSConnection(url string) (*wsConnection, error) {
 	conn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
@@ -91,6 +94,7 @@ func newWSConnection(url string) (*wsConnection, error) {
 	return &wsConnection{conn}, nil
 }
 
+// sendMessage sends message in JSON format via ws connection
 func (c *wsConnection) sendMessage(key, hash string) error {
 	msg := types.Message{
 		Number: key,
@@ -104,10 +108,12 @@ func (c *wsConnection) sendMessage(key, hash string) error {
 	return nil
 }
 
+// redisHandler handles interactions with Redis
 type redisHandler struct {
 	c *redis.Client
 }
 
+// newRedisHandler creates new Redis connection handled based on configurations
 func newRedisHandler(conf config.Config) *redisHandler {
 	client := redis.NewClient(&redis.Options{
 		Addr:     conf.Redis.Address,
@@ -118,7 +124,8 @@ func newRedisHandler(conf config.Config) *redisHandler {
 	return &redisHandler{client}
 }
 
-func (r *redisHandler) saveToRedis(key, hash string) {
+// saveToList appends message to Redis list
+func (r *redisHandler) saveToList(key, hash string) {
 	msg := types.Message{
 		Number: key,
 		Hash:   hash,

@@ -19,6 +19,7 @@ const (
 	colorDefault = "\033[0m"
 )
 
+// receivedMessage is a message structure with generator ID
 type receivedMessage struct {
 	types.Message
 	id string
@@ -45,6 +46,7 @@ func (h *Handler) ReadMessage(w http.ResponseWriter, r *http.Request) {
 	}
 	defer c.Close()
 
+	// generate random ID for each connected generator
 	id := RandomID(8)
 
 	// notify that new generator connected
@@ -54,7 +56,7 @@ func (h *Handler) ReadMessage(w http.ResponseWriter, r *http.Request) {
 		msg := types.Message{}
 		err = c.ReadJSON(&msg)
 		if err != nil {
-			// notify that new generator disconnected
+			// notify that generator disconnected
 			fmt.Printf("%s%s disconnected%s\n", colorRed, id, colorDefault)
 			return
 		}
@@ -64,7 +66,6 @@ func (h *Handler) ReadMessage(w http.ResponseWriter, r *http.Request) {
 			Message: msg,
 			id:      id,
 		}
-
 	}
 }
 

@@ -70,6 +70,7 @@ func StartGeneration(confPath, key string, n int) error {
 				go rh.saveToRedis(kh.key, strHash)
 				// send via ws
 				err = ws.sendMessage(kh.key, strHash)
+				log.Println("ws error: ", err)
 			}
 		case <-interrupt:
 			log.Println("keyboard interrupt")
@@ -98,7 +99,6 @@ func (c *wsConnection) sendMessage(key, hash string) error {
 
 	err := c.WriteJSON(msg)
 	if err != nil {
-		log.Panicln(err)
 		return err
 	}
 	return nil

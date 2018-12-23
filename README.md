@@ -2,7 +2,7 @@
 
 The tool generates hashes for input number and list of random numbers based on input number
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/ilyakaznacheev/rand-hashing)](https://goreportcard.com/report/github.com/Masterminds/glide) [![Build Status](https://travis-ci.org/ilyakaznacheev/rand-hashing.svg?branch=master)](https://travis-ci.org/ilyakaznacheev/rand-hashing) [![Coverage Status](https://coveralls.io/repos/github/ilyakaznacheev/rand-hashing/badge.svg?branch=master)](https://coveralls.io/github/ilyakaznacheev/rand-hashing?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ilyakaznacheev/rand-hashing)](https://goreportcard.com/report/github.com/ilyakaznacheev/rand-hashing) [![Build Status](https://travis-ci.org/ilyakaznacheev/rand-hashing.svg?branch=master)](https://travis-ci.org/ilyakaznacheev/rand-hashing) [![Coverage Status](https://coveralls.io/repos/github/ilyakaznacheev/rand-hashing/badge.svg?branch=master)](https://coveralls.io/github/ilyakaznacheev/rand-hashing?branch=master)
 
 ## Installation
 ```bash

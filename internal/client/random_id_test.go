@@ -4,7 +4,7 @@ import "testing"
 
 func TestRandomIDLen(t *testing.T) {
 	tests := []struct {
-		n int 
+		n int
 	}{
 		{1},
 		{5},

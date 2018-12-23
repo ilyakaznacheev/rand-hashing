@@ -10,7 +10,7 @@ import (
 
 // main starts hashing for input number
 // requires 3 arguments:
-// 
+//
 // path to config file
 // base hashing number
 // number of hashing iterations

@@ -58,12 +58,13 @@ func StartGeneration(confPath, key string, n int) error {
 	log.Println("start generation")
 
 	// send results via ws
+SEND:
 	for {
 		select {
 		case <-time.After(3 * time.Second):
 			if kh, ok := <-sumChan; !ok {
 				log.Println("work done")
-				os.Exit(0)
+				break SEND
 			} else {
 				strHash := fmt.Sprintf("%x", kh.hash)
 				// save into Redis list
@@ -72,6 +73,7 @@ func StartGeneration(confPath, key string, n int) error {
 				err = ws.sendMessage(kh.key, strHash)
 				if err != nil {
 					log.Println("ws error: ", err)
+					break SEND
 				}
 			}
 
@@ -80,6 +82,7 @@ func StartGeneration(confPath, key string, n int) error {
 			os.Exit(0)
 		}
 	}
+	return nil
 }
 
 // wsConnection handles WebSocket connection

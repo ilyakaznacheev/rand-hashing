@@ -1,6 +1,8 @@
 package hashgen
 
 import (
+	"encoding/binary"
+	"fmt"
 	"testing"
 
 	"golang.org/x/crypto/sha3"
@@ -9,37 +11,37 @@ import (
 func TestGenerateHash(t *testing.T) {
 	tests := []struct {
 		name string
-		keys []string
+		keys []uint32
 	}{
 		{
 			name: "1 key",
-			keys: []string{"123456"},
+			keys: []uint32{123456},
 		},
 		{
 			name: "3 keys",
-			keys: []string{
-				"123456",
-				"126543",
-				"120000",
+			keys: []uint32{
+				123456,
+				126543,
+				120000,
 			},
 		},
 		{
 			name: "5 keys",
-			keys: []string{
-				"123456",
-				"126543",
-				"123333",
-				"125555",
-				"120000",
+			keys: []uint32{
+				123456,
+				126543,
+				123333,
+				125555,
+				120000,
 			},
 		},
 		{
 			name: "same keys",
-			keys: []string{
-				"123456",
-				"123456",
-				"123456",
-				"123456",
+			keys: []uint32{
+				123456,
+				123456,
+				123456,
+				123456,
 			},
 		},
 	}
@@ -48,8 +50,10 @@ func TestGenerateHash(t *testing.T) {
 			sumChan := generateHash(tt.keys)
 			for idx := 0; idx < len(tt.keys); idx++ {
 				act := <-sumChan
-				exp := sha3.Sum256([]byte(tt.keys[idx]))
-				if act.hash != exp {
+				expKey := make([]byte, 4)
+				binary.LittleEndian.PutUint32(expKey, tt.keys[idx])
+				exp := sha3.Sum256(expKey)
+				if act.hash != fmt.Sprintf("%x", exp) {
 					t.Errorf("wrong sha-3 sum generated %v, expected %v", act.hash, exp)
 				}
 			}
@@ -61,17 +65,17 @@ func TestGenerateHash(t *testing.T) {
 func TestCreateUniqueKeyList(t *testing.T) {
 	tests := []struct {
 		name string
-		key  string
+		key  uint32
 		n    int
 	}{
 		{
 			name: "single key",
-			key:  "123456",
+			key:  123456,
 			n:    1,
 		},
 		{
-			name: "several kes",
-			key:  "123456",
+			name: "several keys",
+			key:  123456,
 			n:    10,
 		},
 	}
@@ -85,10 +89,10 @@ func TestCreateUniqueKeyList(t *testing.T) {
 
 			// check if all keys are unique
 
-			set := make(map[string]struct{})
+			set := make(map[uint32]struct{})
 			for _, key := range keys {
 				if _, ok := set[key]; ok {
-					t.Errorf("key %s is not unique", key)
+					t.Errorf("key %d is not unique", key)
 					continue
 				}
 				set[key] = struct{}{}

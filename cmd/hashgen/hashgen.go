@@ -20,14 +20,18 @@ func main() {
 		os.Exit(0)
 	}
 	conf := os.Args[1]
-	key := os.Args[2]
+	key, err := strconv.ParseUint(os.Args[2], 0, 32)
+	if err != nil {
+		fmt.Println("argument parsing error: ", err)
+		os.Exit(0)
+	}
 	n, err := strconv.Atoi(os.Args[3])
 	if err != nil {
 		fmt.Println("argument parsing error: ", err)
 		os.Exit(0)
 	}
 
-	err = hashgen.StartGeneration(conf, key, n)
+	err = hashgen.StartGeneration(conf, uint32(key), n)
 	if err != nil {
 		fmt.Println("generation error: ", err)
 		os.Exit(0)

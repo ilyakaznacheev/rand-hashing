@@ -17,7 +17,7 @@ const (
 
 // keyHashRaw contains key number and binary hash sequence
 type keyHashRaw struct {
-	key  uint32
+	key  uint64
 	hash [32]byte
 }
 
@@ -31,13 +31,13 @@ type keyHash struct {
 //
 // key - string that has to be hashed
 // n - number of hashed strings based on key with random ending
-func startHashing(key uint32, n int) chan keyHash {
+func startHashing(key uint64, n int) chan keyHash {
 	keyList := createUniqueKeyList(key, n)
 	return generateHash(keyList)
 }
 
 // generateHash returns channel with generated hashes from input string list
-func generateHash(keyList []uint32) chan keyHash {
+func generateHash(keyList []uint64) chan keyHash {
 	hashChan := make(chan keyHash, len(keyList))
 	sumChans := make([]chan keyHashRaw, 0, len(keyList))
 
@@ -47,9 +47,9 @@ func generateHash(keyList []uint32) chan keyHash {
 		taskChan := make(chan keyHashRaw)
 
 		// run hash sum calculation
-		go func(key uint32) {
-			bKey := make([]byte, 4)
-			binary.LittleEndian.PutUint32(bKey, key)
+		go func(key uint64) {
+			bKey := make([]byte, 8)
+			binary.LittleEndian.PutUint64(bKey, key)
 			taskChan <- keyHashRaw{
 				key:  key,
 				hash: sha3.Sum256(bKey),
@@ -78,8 +78,8 @@ func generateHash(keyList []uint32) chan keyHash {
 
 // createUniqueKeyList creates list with a string key
 // and n generated strings based on key with random ending
-func createUniqueKeyList(key uint32, n int) []uint32 {
-	keyToSum := make([]uint32, 0, n+1)
+func createUniqueKeyList(key uint64, n int) []uint64 {
+	keyToSum := make([]uint64, 0, n+1)
 	if n < 0 {
 		return keyToSum
 	}
@@ -90,7 +90,7 @@ func createUniqueKeyList(key uint32, n int) []uint32 {
 	for idx := 0; idx < n; idx++ {
 		for {
 			// replace last 4 digits with random digits
-			nextKey := key - key%10000 + uint32(rand.Intn(10000))
+			nextKey := key - key%10000 + uint64(rand.Intn(10000))
 			// nextKey := key[0:len(key)-randomEndingLen] + fmt.Sprintf("%04d", randEnding)
 			if !intInSlice(nextKey, keyToSum) {
 				keyToSum = append(keyToSum, nextKey)
@@ -102,7 +102,7 @@ func createUniqueKeyList(key uint32, n int) []uint32 {
 }
 
 // intInSlice chechs if string list contains certain string
-func intInSlice(num uint32, list []uint32) bool {
+func intInSlice(num uint64, list []uint64) bool {
 	for _, v := range list {
 		if v == num {
 			return true

@@ -11,15 +11,15 @@ import (
 func TestGenerateHash(t *testing.T) {
 	tests := []struct {
 		name string
-		keys []uint32
+		keys []uint64
 	}{
 		{
 			name: "1 key",
-			keys: []uint32{123456},
+			keys: []uint64{123456},
 		},
 		{
 			name: "3 keys",
-			keys: []uint32{
+			keys: []uint64{
 				123456,
 				126543,
 				120000,
@@ -27,7 +27,7 @@ func TestGenerateHash(t *testing.T) {
 		},
 		{
 			name: "5 keys",
-			keys: []uint32{
+			keys: []uint64{
 				123456,
 				126543,
 				123333,
@@ -37,7 +37,7 @@ func TestGenerateHash(t *testing.T) {
 		},
 		{
 			name: "same keys",
-			keys: []uint32{
+			keys: []uint64{
 				123456,
 				123456,
 				123456,
@@ -50,8 +50,8 @@ func TestGenerateHash(t *testing.T) {
 			sumChan := generateHash(tt.keys)
 			for idx := 0; idx < len(tt.keys); idx++ {
 				act := <-sumChan
-				expKey := make([]byte, 4)
-				binary.LittleEndian.PutUint32(expKey, tt.keys[idx])
+				expKey := make([]byte, 8)
+				binary.LittleEndian.PutUint64(expKey, tt.keys[idx])
 				exp := sha3.Sum256(expKey)
 				if act.hash != fmt.Sprintf("%x", exp) {
 					t.Errorf("wrong sha-3 sum generated %v, expected %v", act.hash, exp)
@@ -65,7 +65,7 @@ func TestGenerateHash(t *testing.T) {
 func TestCreateUniqueKeyList(t *testing.T) {
 	tests := []struct {
 		name string
-		key  uint32
+		key  uint64
 		n    int
 	}{
 		{
@@ -89,7 +89,7 @@ func TestCreateUniqueKeyList(t *testing.T) {
 
 			// check if all keys are unique
 
-			set := make(map[uint32]struct{})
+			set := make(map[uint64]struct{})
 			for _, key := range keys {
 				if _, ok := set[key]; ok {
 					t.Errorf("key %d is not unique", key)

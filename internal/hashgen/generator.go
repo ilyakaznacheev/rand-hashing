@@ -74,7 +74,7 @@ func createUniqueKeyList(key string, n int) []string {
 
 	for idx := 0; idx < n; idx++ {
 		for {
-			randEnding := rand.Intn(1000)
+			randEnding := rand.Intn(10000)
 			nextKey := key[0:len(key)-randomEndingLen] + fmt.Sprintf("%04d", randEnding)
 			if !stringInSlice(nextKey, keyToSum) {
 				keyToSum = append(keyToSum, nextKey)
